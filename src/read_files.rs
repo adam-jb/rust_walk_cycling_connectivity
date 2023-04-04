@@ -6,7 +6,7 @@ use std::time::Instant;
 
 use crate::shared::{EdgeWalk};
 
-pub fn read_files_serial(mode: str) -> (Vec<i32>, [i8; 32], Vec<Vec<[i32;2]>>, Vec<SmallVec<[EdgeWalk; 4]>>) {
+pub fn read_files_serial(mode: String) -> (Vec<i32>, [i8; 32], Vec<Vec<[i32;2]>>, Vec<SmallVec<[EdgeWalk; 4]>>) {
     let now = Instant::now();
 
     let travel_time_relationships: Vec<i32> =

@@ -5,7 +5,7 @@ use std::time::Instant;
 
 use crate::shared::{Cost, NodeID, UserInputJSON};
 
-use floodfill::{get_travel_times, get_all_scores_and_time_to_target_destinations};
+use floodfill::{get_scores_and_od_pairs};
 use read_files::read_files_serial;
 
 mod floodfill;
@@ -22,14 +22,14 @@ async fn index() -> String {
 
 
 #[post("/floodfill_endpoint/")]
-async fn floodfill_endpoint(data: web::Data<AppState>, input: web::Json<UserInputJSON>) -> String {
+async fn floodfill_endpoint(input: web::Json<UserInputJSON>) -> String {
     
     // Read in files
     let (travel_time_relationships, subpurpose_purpose_lookup, sparse_node_values, graph_walk) =
-        read_files(input.mode);
+        read_files_serial(input.mode);
     
     // Extract costs of turning
-    if input.mode == 'cycling' {
+    if input.mode == "cycling" {
         let time_costs_turn: [u16; 4] = [0, 15, 15, 5];
     } else {
         let time_costs_turn: [u16; 4] = [0, 0, 0, 0];

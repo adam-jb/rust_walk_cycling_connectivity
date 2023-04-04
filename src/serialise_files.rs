@@ -8,7 +8,7 @@ use crate::shared::{Cost, NodeID, Angle, LinkID, EdgeWalk};
 
 
 
-pub fn serialise_files(mode: str) {
+pub fn serialise_files() {
     let now = Instant::now();
     
     serialise_graph_walk_vector("walk");
@@ -21,11 +21,11 @@ pub fn serialise_files(mode: str) {
     serialise_list("walk_travel_time_relationships_7");
     serialise_list("cycling_travel_time_relationships_7");
     
-    println!("File serialisation year {}/tTook {:?}", year, now.elapsed());
+    println!("File serialisation/tTook {:?}",now.elapsed());
 }
 
 
-fn serialise_graph_walk_vector(mode: str) -> usize {
+fn serialise_graph_walk_vector(mode: String) -> usize {
     let contents_filename = format!("data/p1_main_nodes_list_{}.json", mode);
     let contents = fs_err::read_to_string(contents_filename).unwrap();
 
@@ -39,8 +39,8 @@ fn serialise_graph_walk_vector(mode: str) -> usize {
                 cost: Cost(array[0] as u16),
                 to: NodeID(array[1] as u32),
                 angle_leaving_node_from: Angle(array[2] as u16),
-                angle_arriving_from: Angle(array[3] as u16),
-                link_arrived_from: LinkID(array[4] as u16),
+                angle_arrived_from: Angle(array[3] as u16),
+                link_arrived_from: LinkID(array[4] as u32),
             });
         }
         graph_walk_vec.push(edges);
@@ -53,7 +53,7 @@ fn serialise_graph_walk_vector(mode: str) -> usize {
 }
 
 
-fn serialise_sparse_node_values_2d(mode: str) {
+fn serialise_sparse_node_values_2d(mode: String) {
     
     let inpath = format!("data/sparse_node_values_{}.json", mode);
     let contents = fs_err::read_to_string(&inpath).unwrap();

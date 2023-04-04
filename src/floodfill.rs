@@ -22,16 +22,17 @@ pub fn get_scores_and_od_pairs(
     queue.push(PriorityQueueItem {
         cost: init_travel_time,
         value: start,
-        angle_arrived_from: ,
-        link_arrived_from: ,
+        angle_arrived_from: Angle(0),
+        link_arrived_from: LinkID(99_999_999),
     });
                 
     let mut scores: [i64; 32] = [0; 32];
     let mut target_destination_travel_times: Vec<u16> = vec![];
+    let mut target_destination_ids: Vec<u32> = vec![];
     let mut iters: i32 = 0;
     let mut links_visited = HashSet::new();
                 
-    let mut target_destinations_binary_vec = vec![false; count_original_nodes as usize];
+    let mut target_destinations_binary_vec = vec![false; graph_walk.len() as usize];
     for id in target_destinations_vector.into_iter() {
         target_destinations_binary_vec[*id as usize] = true;
     }
@@ -48,7 +49,6 @@ pub fn get_scores_and_od_pairs(
     }
                 
     
-    //!! update for walking/cycling setup: might have set of links visited rather than nodes visited
     while let Some(current) = queue.pop() {
         
         if links_visited.contains(current.link_arrived_from) {
@@ -67,27 +67,27 @@ pub fn get_scores_and_od_pairs(
         for subpurpose_score_pair in sparse_node_values[current.value.0 as usize].iter() {
             let subpurpose_ix = subpurpose_score_pair[0];
             let vec_start_pos_this_purpose = (subpurpose_purpose_lookup[subpurpose_ix as usize] as i32) * 3601;
-            let multiplier = travel_time_relationships[(vec_start_pos_this_purpose + current_cost as i32) as usize];
+            let multiplier = travel_time_relationships[(vec_start_pos_this_purpose + current.cost.0 as i32) as usize];
             scores[subpurpose_ix as usize] += (subpurpose_score_pair[1] as i64) * (multiplier as i64);
         }
 
         for edge in &graph_walk[(current.value.0 as usize)] {
             
-            //
+            let mut angle_turn_previous_node: u16;
             if edge.angle_leaving_node_from < current.angle_arrived_from {
-                let angle_turn_previous_node = edge.angle_leaving_node_from + 360 - current.angle_arrived_from;
+                angle_turn_previous_node = edge.angle_leaving_node_from.0 + 360 - current.angle_arrived_from.0;
             } else {
-                let angle_turn_previous_node = edge.angle_leaving_node_from -  current.angle_arrived_from;
+                angle_turn_previous_node = edge.angle_leaving_node_from.0 -  current.angle_arrived_from.0;
             }
             
             // right turn
-            if 45 <= angle_turn_previous_node < 135 {
+            if 45 <= angle_turn_previous_node && angle_turn_previous_node < 135 {
                 let time_turn_previous_node = time_costs_turn[1];
             // u turn
-            } else if 135 <= angle_turn_previous_node < 225 {
+            } else if 135 <= angle_turn_previous_node && angle_turn_previous_node < 225 {
                 let ime_turn_previous_node = time_costs_turn[2];
             // left turn
-            } else if 225 <= angle_turn_previous_node < 315 {
+            } else if 225 <= angle_turn_previous_node && angle_turn_previous_node < 315 {
                let time_turn_previous_node = time_costs_turn[3];
             // no turn
             } else {
