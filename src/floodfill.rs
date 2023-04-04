@@ -73,54 +73,29 @@ pub fn get_scores_and_od_pairs(
 
         for edge in &graph_walk[(current.value.0 as usize)] {
             
-            //!! add cost of turn using current.angle_
-            /*
-            # if it leaves a node from with a larger angle than val_array[i,2], 
-            if val_array[i, 2] < angle_arrived_from:
-                angle_turn_previous_node = val_array[i, 2] + 360 - angle_arrived_from
-            else:
-                angle_turn_previous_node = val_array[i, 2] - angle_arrived_from
+            //
+            if edge.angle_leaving_node_from < current.angle_arrived_from {
+                let angle_turn_previous_node = edge.angle_leaving_node_from + 360 - current.angle_arrived_from;
+            } else {
+                let angle_turn_previous_node = edge.angle_leaving_node_from -  current.angle_arrived_from;
+            }
             
+            // right turn
+            if 45 <= angle_turn_previous_node < 135 {
+                let time_turn_previous_node = time_costs_turn[1];
+            // u turn
+            } else if 135 <= angle_turn_previous_node < 225 {
+                let ime_turn_previous_node = time_costs_turn[2];
+            // left turn
+            } else if 225 <= angle_turn_previous_node < 315 {
+               let time_turn_previous_node = time_costs_turn[3];
+            // no turn
+            } else {
+                let time_turn_previous_node = time_costs_turn[0];
+            }
+                 
+            let new_cost = Cost(current.cost.0 + edge.cost.0 + time_turn_previous_node);
             
-            ## Old code which limited turns to 180 degrees
-            '''
-            angle_turn_previous_node = abs(angle_arrived_from - val_array[i, 2])
-            if angle_turn_previous_node > 180:
-                angle_turn_previous_node = 360 - angle_turn_previous_node
-            '''
-
-    
-            #### Degrees here are all clockwise, so a left turn has the largest angle
-            '''
-            what is in time_costs_turn:
-            
-            [0] = straight line (no turn)
-            [1] = right angle
-            [2] = u turn cost
-            [3] = left turn cost
-            
-            '''
-            # counts as a right turn if 45 degrees or above
-            if 45 <= angle_turn_previous_node < 135:
-                time_turn_previous_node = time_costs_turn[1]
-                
-            # counts as a u-turn if 135 degrees or above
-            elif 135 <= angle_turn_previous_node < 225:
-                time_turn_previous_node = time_costs_turn[2]
-                
-            # counts as a left turn if 225 degrees or above 
-            elif 225 <= angle_turn_previous_node < 315:
-                time_turn_previous_node = time_costs_turn[3]
-                
-            # no turn: continuing straight. Captures angles above 315 degrees or under 45
-            else:
-                time_turn_previous_node = time_costs_turn[0]
-            */
-            
-            
-            let new_cost = Cost(current.cost.0 + edge.cost.0);
-            
-            //!! add 
             if new_cost < time_limit {
                 queue.push(PriorityQueueItem {
                     cost: new_cost,
