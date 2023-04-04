@@ -118,7 +118,6 @@ pub fn get_scores_and_od_pairs(
             */
             
             
-            
             let new_cost = Cost(current.cost.0 + edge.cost.0);
             
             //!! add 
