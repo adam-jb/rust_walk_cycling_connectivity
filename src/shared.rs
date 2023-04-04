@@ -17,7 +17,7 @@ pub struct EdgeWalk {
     pub to: NodeID,
     pub cost: Cost,
     pub angle_leaving_node_from: Angle,
-    pub angle_arriving_from: Angle,
+    pub angle_arrived_from: Angle,
     pub link_arrived_from: LinkID,
 }
 

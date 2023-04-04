@@ -3,7 +3,7 @@ use rayon::prelude::*;
 use smallvec::SmallVec;
 use std::time::Instant;
 
-use crate::shared::{Cost, NodeID, Angle, EdgeWalk, UserInputJSON};
+use crate::shared::{Cost, NodeID, UserInputJSON};
 
 use floodfill::{get_travel_times, get_all_scores_and_time_to_target_destinations};
 use read_files::read_files_serial;
@@ -30,9 +30,9 @@ async fn floodfill_endpoint(data: web::Data<AppState>, input: web::Json<UserInpu
     
     // Extract costs of turning
     if input.mode == 'cycling' {
-        let time_costs_turn = [0, 15, 15, 5];
+        let time_costs_turn: [u16; 4] = [0, 15, 15, 5];
     } else {
-        let time_costs_turn = [0, 0, 0, 0];
+        let time_costs_turn: [u16; 4] = [0, 0, 0, 0];
     }
     
     let now = Instant::now();
@@ -51,6 +51,7 @@ async fn floodfill_endpoint(data: web::Data<AppState>, input: web::Json<UserInpu
                 NodeID(*&input.start_nodes_user_input[*i] as u32),
                 *&input.trip_start_seconds,
                 Cost(*&input.init_travel_times_user_input[*i] as u16),
+                &input.target_destinations_vector,
             )
         })
         .collect(); 
