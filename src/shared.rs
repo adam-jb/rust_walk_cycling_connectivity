@@ -25,7 +25,7 @@ pub struct EdgeWalk {
 pub struct UserInputJSON {
     pub start_nodes_user_input: Vec<i32>,
     pub init_travel_times_user_input: Vec<i32>,
-    pub mode: str,
+    pub mode: String,
     pub target_destinations: Vec<u32>,
     pub trip_start_seconds: i32,
 }
