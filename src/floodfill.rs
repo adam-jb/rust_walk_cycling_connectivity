@@ -9,16 +9,15 @@ pub fn get_scores_and_od_pairs(
                 subpurpose_purpose_lookup: &[i8; 32],
                 sparse_node_values: &Vec<Vec<[i32;2]>>,
                 graph_walk: &Vec<SmallVec<[EdgeWalk; 4]>>,
-                time_costs_turn: [u16; 4],
+                time_costs_turn: &[u16; 4],
                 start: NodeID,
-                trip_start_seconds: i32, 
                 init_travel_time: Cost,
                 target_destinations_vector: &[u32],
             ) -> (i32, u32, [i64; 32], Vec<u32>, Vec<u16>) {
     
     let time_limit: Cost = Cost(3600);
     
-    let mut queue: BinaryHeap<PriorityQueueItem<Cost, NodeID>> = BinaryHeap::new();
+    let mut queue: BinaryHeap<PriorityQueueItem<Cost, NodeID, Angle, LinkID>> = BinaryHeap::new();
     queue.push(PriorityQueueItem {
         cost: init_travel_time,
         value: start,
@@ -41,17 +40,21 @@ pub fn get_scores_and_od_pairs(
     if init_travel_time >= Cost(3600) {
         return (
             iters,
-            start,
+            start.0,
             scores,
             target_destination_ids,
             target_destination_travel_times,
         );
     }
                 
+    // declare variables which are used below
+    let mut time_turn_previous_node: u16;
+    let mut angle_turn_previous_node: u16;
+                
     
     while let Some(current) = queue.pop() {
         
-        if links_visited.contains(current.link_arrived_from) {
+        if links_visited.contains(&current.link_arrived_from) {
             continue
         }
         links_visited.insert(current.link_arrived_from);
@@ -73,7 +76,6 @@ pub fn get_scores_and_od_pairs(
 
         for edge in &graph_walk[(current.value.0 as usize)] {
             
-            let mut angle_turn_previous_node: u16;
             if edge.angle_leaving_node_from < current.angle_arrived_from {
                 angle_turn_previous_node = edge.angle_leaving_node_from.0 + 360 - current.angle_arrived_from.0;
             } else {
@@ -82,18 +84,18 @@ pub fn get_scores_and_od_pairs(
             
             // right turn
             if 45 <= angle_turn_previous_node && angle_turn_previous_node < 135 {
-                let time_turn_previous_node = time_costs_turn[1];
+                time_turn_previous_node = time_costs_turn[1];
             // u turn
             } else if 135 <= angle_turn_previous_node && angle_turn_previous_node < 225 {
-                let ime_turn_previous_node = time_costs_turn[2];
+                time_turn_previous_node = time_costs_turn[2];
             // left turn
             } else if 225 <= angle_turn_previous_node && angle_turn_previous_node < 315 {
-               let time_turn_previous_node = time_costs_turn[3];
+               time_turn_previous_node = time_costs_turn[3];
             // no turn
             } else {
-                let time_turn_previous_node = time_costs_turn[0];
+                time_turn_previous_node = time_costs_turn[0];
             }
-                 
+            
             let new_cost = Cost(current.cost.0 + edge.cost.0 + time_turn_previous_node);
             
             if new_cost < time_limit {
@@ -110,7 +112,7 @@ pub fn get_scores_and_od_pairs(
                 
     return (
         iters,
-        start,
+        start.0,
         scores,
         target_destination_ids,
         target_destination_travel_times,

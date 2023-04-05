@@ -25,7 +25,7 @@ pub fn serialise_files() {
 }
 
 
-fn serialise_graph_walk_vector(mode: String) -> usize {
+fn serialise_graph_walk_vector(mode: &str) -> usize {
     let contents_filename = format!("data/p1_main_nodes_list_{}.json", mode);
     let contents = fs_err::read_to_string(contents_filename).unwrap();
 
@@ -53,7 +53,7 @@ fn serialise_graph_walk_vector(mode: String) -> usize {
 }
 
 
-fn serialise_sparse_node_values_2d(mode: String) {
+fn serialise_sparse_node_values_2d(mode: &str) {
     
     let inpath = format!("data/sparse_node_values_{}.json", mode);
     let contents = fs_err::read_to_string(&inpath).unwrap();

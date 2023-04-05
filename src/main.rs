@@ -1,6 +1,5 @@
 use actix_web::{get, post, web, App, HttpServer};
 use rayon::prelude::*;
-use smallvec::SmallVec;
 use std::time::Instant;
 
 use crate::shared::{Cost, NodeID, UserInputJSON};
@@ -17,6 +16,7 @@ mod shared;
 
 #[get("/")]
 async fn index() -> String {
+    println!("Ping received");
     format!("App is listening")
 }
 
@@ -26,32 +26,32 @@ async fn floodfill_endpoint(input: web::Json<UserInputJSON>) -> String {
     
     // Read in files
     let (travel_time_relationships, subpurpose_purpose_lookup, sparse_node_values, graph_walk) =
-        read_files_serial(input.mode);
+        read_files_serial(&input.mode);
     
     // Extract costs of turning
+    let time_costs_turn: [u16; 4];
     if input.mode == "cycling" {
-        let time_costs_turn: [u16; 4] = [0, 15, 15, 5];
+        time_costs_turn = [0, 15, 15, 5];
     } else {
-        let time_costs_turn: [u16; 4] = [0, 0, 0, 0];
+        time_costs_turn = [0, 0, 0, 0];
     }
     
     let now = Instant::now();
     
     let indices = (0..input.start_nodes_user_input.len()).collect::<Vec<_>>();
-    
+        
     let results: Vec<(i32, u32, [i64; 32], Vec<u32>, Vec<u16>)> = indices
         .par_iter()
         .map(|i| {
             get_scores_and_od_pairs(
                 &travel_time_relationships,
-                &subpurpose_purpose_lookup
+                &subpurpose_purpose_lookup,
                 &sparse_node_values,
                 &graph_walk,
                 &time_costs_turn,
                 NodeID(*&input.start_nodes_user_input[*i] as u32),
-                *&input.trip_start_seconds,
                 Cost(*&input.init_travel_times_user_input[*i] as u16),
-                &input.target_destinations_vector,
+                &input.target_destinations,
             )
         })
         .collect(); 
@@ -66,9 +66,11 @@ async fn floodfill_endpoint(input: web::Json<UserInputJSON>) -> String {
 async fn main() -> std::io::Result<()> {
         
     // make this true on initial run; false otherwise
-    if true {
+    if false {
         serialise_files::serialise_files();
     }
+    
+    println!("Listening on 0.0.0.0:7328");
 
     HttpServer::new(move || {
         App::new()

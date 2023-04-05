@@ -27,5 +27,4 @@ pub struct UserInputJSON {
     pub init_travel_times_user_input: Vec<i32>,
     pub mode: String,
     pub target_destinations: Vec<u32>,
-    pub trip_start_seconds: i32,
 }
