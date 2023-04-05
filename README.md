@@ -34,20 +34,22 @@ wget -O- --post-data='{"start_nodes_user_input": [1, 2, 3, 4, 5], "init_travel_t
   'http://0.0.0.0:7328/floodfill_endpoint/'
 ```
 
+If mode is anything but "cycling" it is assumed to be walking
+
 
 # Deploying with Docker
 
 To make and run docker image
 ```
-docker build --progress=plain -t rust_connectivity:latest .
-docker run -p 0.0.0.0:7328:7328 rust_connectivity:latest
+docker build --progress=plain -t rust_walk_cycling_connectivity:latest . && \
+docker run -p 0.0.0.0:7328:7328 rust_walk_cycling_connectivity:latest
 ```
 
 To deploy with Cloud Run do the below, then use Cloud Run UI in GCP to deploy
 ```
-docker build --progress=plain -t rust_connectivity:latest . && \
-docker tag rust_connectivity:latest gcr.io/dft-dst-prt-connectivitymetric/adambricknell/connectivity_rust:latest && \
-docker push gcr.io/dft-dst-prt-connectivitymetric/adambricknell/connectivity_rust:latest
+docker build --progress=plain -t rust_walk_cycling_connectivity:latest . && \
+docker tag rust_walk_cycling_connectivity:latest gcr.io/dft-dst-prt-connectivitymetric/adambricknell/rust_walk_cycling_connectivity:latest && \
+docker push gcr.io/dft-dst-prt-connectivitymetric/adambricknell/rust_walk_cycling_connectivity:latest
 ```
 
 Settings to deploy Cloud Run facing internally
