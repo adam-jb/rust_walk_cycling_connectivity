@@ -20,18 +20,24 @@ Check it's listening:
 curl http://0.0.0.0:7328/
 ```
 
-Run PT algorithm on 3 start nodes: 
+Run PT algorithm on 5 start nodes for walking: 
 ```
-wget -O- --post-data='{"start_nodes_user_input": [9380647, 9183046, 2420336], "init_travel_times_user_input": [16, 10, 10], "trip_start_seconds": 28800, "graph_walk_additions": [], "graph_pt_additions": [], "new_nodes_count": 0, "graph_walk_updates_keys": [], "graph_walk_updates_additions": [], "year": 2022, "new_build_additions": [], "target_destinations": []}' \
+wget -O- --post-data='{"start_nodes_user_input": [1, 2, 3, 4, 5], "init_travel_times_user_input": [16, 10, 10, 23, 99], "mode": "walk", "target_destinations": [1,2,3,4,55,6,7,8,9,10]}' \
   --header='Content-Type:application/json' \
-  'http://0.0.0.0:7328/floodfill_pt/'
+  'http://0.0.0.0:7328/floodfill_endpoint/'
 ```
 
+Same, for cycling:
+```
+wget -O- --post-data='{"start_nodes_user_input": [1, 2, 3, 4, 5], "init_travel_times_user_input": [16, 10, 10, 23, 99], "mode": "cycling", "target_destinations": [1,2,3,4,55,6,7,8,9,10]}' \
+  --header='Content-Type:application/json' \
+  'http://0.0.0.0:7328/floodfill_endpoint/'
+```
 
 
 # Deploying with Docker
 
-To make and run docker image. For networks from 2016 to 2022 the image is 15gb.
+To make and run docker image
 ```
 docker build --progress=plain -t rust_connectivity:latest .
 docker run -p 0.0.0.0:7328:7328 rust_connectivity:latest
