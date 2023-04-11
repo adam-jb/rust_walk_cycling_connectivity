@@ -30,6 +30,7 @@ pub fn get_scores_and_od_pairs(
     let mut target_destination_ids: Vec<u32> = vec![];
     let mut iters: i32 = 0;
     let mut links_visited = HashSet::new();
+    let mut nodes_visited = HashSet::new();
                 
     let mut target_destinations_binary_vec = vec![false; graph_walk.len() as usize];
     for id in target_destinations_vector.into_iter() {
@@ -58,21 +59,27 @@ pub fn get_scores_and_od_pairs(
             continue
         }
         links_visited.insert(current.link_arrived_from);
-        iters += 1;
- 
-        // store OD pair
-        if target_destinations_binary_vec[current.value.0 as usize] {
-            target_destination_ids.push(current.value.0);
-            target_destination_travel_times.push(current.cost.0);
-        }
         
-        // get scores
-        for subpurpose_score_pair in sparse_node_values[current.value.0 as usize].iter() {
-            let subpurpose_ix = subpurpose_score_pair[0];
-            let vec_start_pos_this_purpose = (subpurpose_purpose_lookup[subpurpose_ix as usize] as i32) * 3601;
-            let multiplier = travel_time_relationships[(vec_start_pos_this_purpose + current.cost.0 as i32) as usize];
-            scores[subpurpose_ix as usize] += (subpurpose_score_pair[1] as i64) * (multiplier as i64);
-        }
+        // Store OD pairs and get scores if this node hasn't been visited yet
+        if !nodes_visited.contains(&current.value.0) {
+
+            // store OD pair
+            if target_destinations_binary_vec[current.value.0 as usize] {
+                target_destination_ids.push(current.value.0);
+                target_destination_travel_times.push(current.cost.0);
+            }
+
+            // get scores
+            for subpurpose_score_pair in sparse_node_values[current.value.0 as usize].iter() {
+                let subpurpose_ix = subpurpose_score_pair[0];
+                let vec_start_pos_this_purpose = (subpurpose_purpose_lookup[subpurpose_ix as usize] as i32) * 3601;
+                let multiplier = travel_time_relationships[(vec_start_pos_this_purpose + current.cost.0 as i32) as usize];
+                scores[subpurpose_ix as usize] += (subpurpose_score_pair[1] as i64) * (multiplier as i64);
+            }
+            
+            nodes_visited.insert(current.value.0);
+            iters += 1;
+        } 
 
         for edge in &graph_walk[(current.value.0 as usize)] {
             

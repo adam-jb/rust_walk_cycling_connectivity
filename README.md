@@ -1,5 +1,11 @@
 # Getting started
 
+Install rust and Cargo: 
+```
+curl https://sh.rustup.rs -sSf | sh
+source "$HOME/.cargo/env"
+```
+
 1. Run `./download_input.sh` once to download input data
 
 2. Flip the `if false` part of `serialise_files` in `src/main.rs` to `true` so the files are serialised
@@ -11,6 +17,8 @@
 5. Build with `cargo build --release`
 
 6. Run with `./target/release/rust_walk_cycling_connectivity`
+
+If you're planning to run with Docker, you can leave steps 5 and 6
 
 
 # On querying the API
